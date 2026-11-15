@@ -8,6 +8,7 @@ jobs:
       matrix:
         os: [macos-15, macos-15-intel, macos-26, macos-26-intel]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Dézipper comme un acheteur
@@ -32,34 +33,34 @@ jobs:
           . ci/outils.sh
           defaults write com.yessen.flocon accueilli -bool true
           defaults write com.yessen.flocon cadence -float 1
-          open -a TextEdit
+          swiftc -O ci/fenetre.swift -o fenetre-test
+          ./fenetre-test &
           sleep 3
-          textedit 'make new document'
-          textedit 'set bounds of window 1 to {500, 200, 1300, 700}'
           open /Applications/Flocon.app --args --pilote
           sleep 50
           photo 2-neige-50s
-      - name: Fenêtre déplacée, rétrécie, ouverte, fermée
-        run: |
-          . ci/outils.sh
-          textedit 'set bounds of window 1 to {300, 300, 1100, 800}'
-          sleep 2
-          photo 3-fenetre-deplacee
-          textedit 'set bounds of window 1 to {300, 300, 700, 800}'
-          sleep 2
-          photo 4-fenetre-retrecie
-          textedit 'make new document'
-          sleep 3
-          photo 5-nouvelle-fenetre
-          textedit 'close window 1 saving no'
-          sleep 2
-          photo 6-fenetre-fermee
       - name: Boule de neige roulée à la souris
         run: |
           . ci/outils.sh
-          essai swift ci/souris.swift 30 170 -4
+          # dans la neige posée sur la fenêtre de test (haut à 150 pt)
+          essai swift ci/souris.swift 230 670 147
           sleep 1
           photo 7-boule
+      - name: Fenêtre déplacée, rétrécie, ouverte, fermée
+        run: |
+          . ci/outils.sh
+          fenetre '100 250 500 350'
+          sleep 2
+          photo 3-fenetre-deplacee
+          fenetre '100 250 300 350'
+          sleep 2
+          photo 4-fenetre-retrecie
+          fenetre nouvelle
+          sleep 3
+          photo 5-nouvelle-fenetre
+          fenetre ferme
+          sleep 2
+          photo 6-fenetre-fermee
       - name: Chasse-neige
         run: |
           . ci/outils.sh
@@ -102,7 +103,7 @@ jobs:
           for i in 1 2 3 4 5 6 7 8; do
             pilote off; pilote on; pilote chasse
             ordre com.apple.screenIsLocked; ordre com.apple.screenIsUnlocked
-            textedit 'set bounds of window 1 to {'$((200 + i * 40))', 250, '$((700 + i * 60))', 750}'
+            fenetre "$((100 + i * 30)) 200 $((250 + i * 40)) 300"
           done
           sleep 5
           photo 15-apres-rafale
