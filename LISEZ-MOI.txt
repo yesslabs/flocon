@@ -1,0 +1,63 @@
+FLOCON — il neige sur votre Mac
+Version 1.0 · macOS 13 ou plus récent · Mac à puce Apple ou Intel
+
+
+INSTALLATION (2 minutes)
+
+1. Glissez « Flocon » dans votre dossier Applications.
+
+2. Ouvrez Flocon depuis le dossier Applications.
+   macOS affiche un message disant qu'il ne peut pas vérifier l'app :
+   c'est normal, Flocon est distribué hors du Mac App Store.
+   Cliquez sur « Terminé » (ou « OK »).
+
+3. Ouvrez Réglages Système › Confidentialité et sécurité.
+   Descendez jusqu'à la ligne « Flocon a été bloqué… »
+   et cliquez sur « Ouvrir quand même », puis confirmez.
+
+4. Flocon se lance et vous présente ses fonctions.
+   Cette autorisation n'est demandée qu'une seule fois.
+
+Si le bouton « Ouvrir quand même » n'apparaît pas, ouvrez l'app Terminal,
+collez la ligne suivante puis appuyez sur Entrée, et rouvrez Flocon :
+
+   xattr -dr com.apple.quarantine /Applications/Flocon.app
+
+
+UTILISATION
+
+Flocon n'a pas d'icône dans le Dock : il se range dans la barre des menus,
+en haut à droite de l'écran (le flocon). Cliquez dessus pour :
+
+ · activer ou couper la neige ;
+ · régler la cadence de la neige avec le curseur ;
+ · envoyer le chasse-neige ;
+ · ouvrir Flocon au démarrage du Mac ;
+ · revoir la présentation ou quitter.
+
+À essayer :
+ · balayez la neige avec le curseur ;
+ · secouez une fenêtre pour faire tomber sa neige ;
+ · cliquez dans la neige pour former une boule, faites-la rouler pour
+   la grossir, lancez-la ; trois boules empilées font un bonhomme.
+
+
+OUVRIR AU DÉMARRAGE
+
+Quand vous cochez « Ouvrir au démarrage du Mac », macOS peut demander votre
+accord : Flocon ouvre alors Réglages Système › Général › Ouverture.
+Activez Flocon dans la liste, c'est tout.
+
+
+BON À SAVOIR
+
+ · Avec plusieurs écrans, il neige sur l'écran principal.
+ · Flocon se met en pause quand l'écran dort ou se verrouille.
+ · Pour désinstaller : quittez Flocon, puis mettez-le à la corbeille.
+
+
+MISES À JOUR
+
+Les nouvelles versions vous sont envoyées par e-mail. Pour mettre à jour,
+quittez Flocon, remplacez l'ancienne app par la nouvelle dans Applications,
+puis rouvrez-la. Le numéro de version est affiché en bas du menu de Flocon.

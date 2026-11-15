@@ -1,0 +1,55 @@
+# Lance le zip vendu (dist/) sur les Mac de GitHub, Intel et puce Apple, et rapporte des captures d'écran.
+name: Test Flocon
+on: workflow_dispatch
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-15-intel, macos-26, macos-26-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dézipper comme un acheteur
+        run: |
+          ditto -x -k dist/Flocon-*.zip out
+          mv out/Flocon*/Flocon.app /Applications/
+          codesign --verify --deep --strict /Applications/Flocon.app
+      - name: Test interne et diagnostic
+        run: |
+          /Applications/Flocon.app/Contents/MacOS/Flocon --selftest
+          /Applications/Flocon.app/Contents/MacOS/Flocon --diag | tee diag.txt
+      - name: Premier lancement (écran d'accueil)
+        run: |
+          mkdir shots
+          open /Applications/Flocon.app
+          sleep 10
+          pgrep -x Flocon
+          screencapture -x shots/1-accueil.png
+          pkill -x Flocon
+      - name: Lancement normal, avec une fenêtre ouverte
+        run: |
+          defaults write com.yessen.flocon accueilli -bool true
+          defaults write com.yessen.flocon cadence -float 1
+          open -a TextEdit
+          sleep 3
+          open /Applications/Flocon.app
+          sleep 20
+          screencapture -x shots/2-neige-20s.png
+          sleep 60
+          pgrep -x Flocon
+          screencapture -x shots/3-neige-80s.png
+          ps -o %cpu=,rss= -p "$(pgrep -x Flocon)" | tee cpu.txt
+      - name: Rapports de plantage éventuels
+        if: always()
+        run: |
+          ls ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -i flocon || echo "aucun plantage"
+          cp ~/Library/Logs/DiagnosticReports/*locon* shots/ 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flocon-${{ matrix.os }}
+          path: |
+            shots
+            diag.txt
+            cpu.txt
