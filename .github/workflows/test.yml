@@ -34,6 +34,7 @@ jobs:
           defaults write com.yessen.flocon accueilli -bool true
           defaults write com.yessen.flocon cadence -float 1
           swiftc -O ci/fenetre.swift -o fenetre-test
+          swiftc -O ci/souris.swift -o souris
           ./fenetre-test &
           sleep 3
           open /Applications/Flocon.app --args --pilote
@@ -43,7 +44,7 @@ jobs:
         run: |
           . ci/outils.sh
           # dans la neige posée sur la fenêtre de test (haut à 150 pt)
-          essai swift ci/souris.swift 230 670 147
+          essai ./souris 230 670 147
           sleep 1
           photo 7-boule
       - name: Fenêtre déplacée, rétrécie, ouverte, fermée
@@ -91,7 +92,7 @@ jobs:
         run: |
           . ci/outils.sh
           # le clic ne rend la main qu'à la fermeture du menu : on le lance à part
-          osascript -e 'tell application "System Events" to tell process "Flocon" to click menu bar item 1 of menu bar 2' &
+          osascript -e 'tell application "System Events" to tell process "Flocon" to click menu bar item 1 of menu bar 1' &
           sleep 3
           photo 14-menu
           essai osascript -e 'tell application "System Events" to key code 53'
