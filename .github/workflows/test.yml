@@ -29,22 +29,98 @@ jobs:
           pkill -x Flocon
       - name: Lancement normal, avec une fenêtre ouverte
         run: |
+          . ci/outils.sh
           defaults write com.yessen.flocon accueilli -bool true
           defaults write com.yessen.flocon cadence -float 1
           open -a TextEdit
           sleep 3
+          textedit 'make new document'
+          textedit 'set bounds of window 1 to {500, 200, 1300, 700}'
+          open /Applications/Flocon.app --args --pilote
+          sleep 50
+          photo 2-neige-50s
+      - name: Fenêtre déplacée, rétrécie, ouverte, fermée
+        run: |
+          . ci/outils.sh
+          textedit 'set bounds of window 1 to {300, 300, 1100, 800}'
+          sleep 2
+          photo 3-fenetre-deplacee
+          textedit 'set bounds of window 1 to {300, 300, 700, 800}'
+          sleep 2
+          photo 4-fenetre-retrecie
+          textedit 'make new document'
+          sleep 3
+          photo 5-nouvelle-fenetre
+          textedit 'close window 1 saving no'
+          sleep 2
+          photo 6-fenetre-fermee
+      - name: Boule de neige roulée à la souris
+        run: |
+          . ci/outils.sh
+          essai swift ci/souris.swift 30 170 -4
+          sleep 1
+          photo 7-boule
+      - name: Chasse-neige
+        run: |
+          . ci/outils.sh
+          pilote chasse
+          sleep 6
+          photo 8-chasse-neige-en-route
+          sleep 14
+          photo 9-chasse-neige-passe
+      - name: Verrouillage puis déverrouillage
+        run: |
+          . ci/outils.sh
+          ordre com.apple.screenIsLocked
+          sleep 2
+          photo 10-verrouille
+          ordre com.apple.screenIsUnlocked
+          sleep 15
+          photo 11-deverrouille
+      - name: Désactivation puis réactivation
+        run: |
+          . ci/outils.sh
+          pilote off
+          sleep 2
+          photo 12-desactive
+          pilote on
+          sleep 12
+          photo 13-reactive
+      - name: Menu de la barre des menus
+        run: |
+          . ci/outils.sh
+          # le clic ne rend la main qu'à la fermeture du menu : on le lance à part
+          osascript -e 'tell application "System Events" to tell process "Flocon" to click menu bar item 1 of menu bar 2' &
+          sleep 3
+          photo 14-menu
+          essai osascript -e 'tell application "System Events" to key code 53'
+          sleep 1
+          kill %1 2>/dev/null || true
+      - name: Maltraitance (ordres en rafale)
+        run: |
+          . ci/outils.sh
+          for i in 1 2 3 4 5 6 7 8; do
+            pilote off; pilote on; pilote chasse
+            ordre com.apple.screenIsLocked; ordre com.apple.screenIsUnlocked
+            textedit 'set bounds of window 1 to {'$((200 + i * 40))', 250, '$((700 + i * 60))', 750}'
+          done
+          sleep 5
+          photo 15-apres-rafale
+      - name: Quitter puis relancer
+        run: |
+          . ci/outils.sh
+          pkill -x Flocon
+          sleep 2
           open /Applications/Flocon.app
           sleep 20
-          screencapture -x shots/2-neige-20s.png
-          sleep 60
-          pgrep -x Flocon
-          screencapture -x shots/3-neige-80s.png
+          photo 16-relance
           ps -o %cpu=,rss= -p "$(pgrep -x Flocon)" | tee cpu.txt
       - name: Rapports de plantage éventuels
         if: always()
         run: |
-          ls ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -i flocon || echo "aucun plantage"
           cp ~/Library/Logs/DiagnosticReports/*locon* shots/ 2>/dev/null || true
+          if ls ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -i flocon; then echo "::error::Flocon a planté"; exit 1; fi
+          echo "aucun plantage"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
