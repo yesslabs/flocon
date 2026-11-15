@@ -229,13 +229,15 @@ private typealias DockFn = @convention(c) (Int32, UnsafeMutablePointer<CGRect>, 
 
 /// Rectangle du Dock (origine en haut à gauche). API privée de macOS, sans autorisation à demander ;
 /// si elle disparaît un jour, on renvoie nil et la neige ne se pose simplement plus sur le Dock.
+var dockCallResult: Int32 = 0   // dernier code de retour, pour le diagnostic
 func readDockRect() -> CGRect? {
     let lib = UnsafeMutableRawPointer(bitPattern: -2)   // RTLD_DEFAULT
     guard let conn = dlsym(lib, "SLSMainConnectionID"), let get = dlsym(lib, "SLSGetDockRectWithReason") else { return nil }
     var rect = CGRect.zero
     var reason: Int32 = 0
-    guard unsafeBitCast(get, to: DockFn.self)(unsafeBitCast(conn, to: ConnFn.self)(), &rect, &reason) == 0 else { return nil }
-    return rect
+    // On juge au rectangle obtenu, pas au code de retour : sur Mac Intel il n'est pas nul alors que l'appel a réussi.
+    dockCallResult = unsafeBitCast(get, to: DockFn.self)(unsafeBitCast(conn, to: ConnFn.self)(), &rect, &reason)
+    return rect.width > 0 && rect.height > 0 ? rect : nil
 }
 
 /// Amortisseur critique : rapproche `current` de `target` en douceur, sans dépassement.
@@ -2045,7 +2047,7 @@ if CommandLine.arguments.contains("--diag") {
     for name in ["SLSMainConnectionID", "SLSGetDockRectWithReason", "SLSGetWindowBounds", "SLSMoveWindow"] {
         print(name, dlsym(UnsafeMutableRawPointer(bitPattern: -2), name) != nil ? "présente" : "ABSENTE")
     }
-    print("rectangle du Dock :", readDockRect().map { "\($0)" } ?? "indisponible")
+    print("rectangle du Dock :", readDockRect().map { "\($0)" } ?? "indisponible", "(code de retour \(dockCallResult))")
     print("suivi direct des fenêtres :", Follower().available ? "disponible" : "indisponible (repli plus lent)")
     exit(0)
 }
