@@ -12,7 +12,7 @@ func post(_ type: CGEventType, _ x: Double) {
 post(.mouseMoved, a[0]); usleep(400_000)   // le temps que Flocon commence à capter les clics à cet endroit
 post(.leftMouseDown, a[0])
 for _ in 0..<3 {   // trois allers-retours dans la neige pour grossir la boule
-    for x in stride(from: a[0], through: a[1], by: 4) { post(.leftMouseDragged, x) }
-    for x in stride(from: a[1], through: a[0], by: -4) { post(.leftMouseDragged, x) }
+    for x in stride(from: a[0], through: a[1], by: 12) { post(.leftMouseDragged, x) }
+    for x in stride(from: a[1], through: a[0], by: -12) { post(.leftMouseDragged, x) }
 }
 post(.leftMouseUp, a[0])
