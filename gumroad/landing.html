@@ -268,20 +268,24 @@
       for (var e = 0; e < els.length; e++) {
         var el = els[e], b = el.getBoundingClientRect(); if (b.width < 24) continue;
         if (el._max == null) { el._max = +el.getAttribute("data-cap") || 10; el._rad = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0; }
-        var ins = Math.min(el._rad, b.height / 2) * 0.45, x0 = b.left - r.left + ins, x1 = b.right - r.left - ins, n = Math.max(2, Math.round((x1 - x0) / COL));
+        var rad = Math.min(el._rad, b.height / 2), ins = rad * 0.3, x0 = b.left - r.left + ins, x1 = b.right - r.left - ins, n = Math.max(2, Math.round((x1 - x0) / COL));
         if (!el._h || el._h.length !== n) {   // première mesure, ou largeur changée : la neige déjà posée est conservée
           var old = el._h, hs = [];
           for (var i = 0; i < n; i++) hs.push(old ? old[Math.min(old.length - 1, Math.floor(i * old.length / n))]
             : el._max * (0.34 + 0.15 * Math.sin(i * 0.33 + e * 1.7) + 0.08 * Math.sin(i * 0.9 + e)));
           el._h = hs;
         }
-        L.push({ el: el, x0: x0, x1: x1, w: (x1 - x0) / n, y: b.top - r.top, l: b.left - r.left, r: b.right - r.left, bot: b.bottom - r.top, max: el._max, h: el._h });
+        L.push({ el: el, x0: x0, x1: x1, w: (x1 - x0) / n, y: b.top - r.top, l: b.left - r.left, r: b.right - r.left, bot: b.bottom - r.top, max: el._max, h: el._h, rad: rad });
       }
     }
     function height(a, x) {   // lissée entre les colonnes, arrondie aux deux bouts
       var f = (x - a.x0) / a.w - 0.5, i = Math.floor(f), u = f - i, n = a.h.length - 1;
       var p = a.h[Math.max(0, Math.min(n, i))], q = a.h[Math.max(0, Math.min(n, i + 1))];
       return Math.max(0, Math.min(p + (q - p) * u, Math.min(x - a.x0, a.x1 - x) * 0.75 + 2));
+    }
+    function bed(a, x) {   // sur un coin arrondi, le bord descend : la neige le suit au lieu de flotter au-dessus
+      var d = a.rad - Math.min(x - a.l, a.r - x);
+      return d > 0 ? a.rad - Math.sqrt(Math.max(0, a.rad * a.rad - d * d)) : 0;
     }
     function hidden(k, x) {   // dans le bureau, une fenêtre placée devant cache ce bord
       if (!o.overlap) return false;
@@ -297,7 +301,7 @@
         if (f.x < -5) f.x += W + 10; else if (f.x > W + 5) f.x -= W + 10;
         for (k = L.length - 1; k >= 0; k--) {
           var a = L[k]; if (f.x < a.x0 || f.x >= a.x1 || py > a.y || f.y < a.y - a.max - 2) continue;
-          var top = a.y - height(a, f.x);
+          var top = a.y + bed(a, f.x) - height(a, f.x);
           if (py <= top && f.y >= top && !hidden(k, f.x)) {
             var c = Math.min(a.h.length - 1, Math.floor((f.x - a.x0) / a.w));
             if (a.h[c] < a.max) a.h[c] += f.r * o.gain;
@@ -316,12 +320,12 @@
       }
     }
     function fling(a, c, vx) {
-      if (bits.length < 220) bits.push({ x: a.x0 + (c + 0.5) * a.w, y: a.y - a.h[c], vx: vx + (Math.random() - 0.5) * 140, vy: -50 - Math.random() * 200, r: 1 + Math.random() * 1.7 });
+      if (bits.length < 220) bits.push({ x: a.x0 + (c + 0.5) * a.w, y: a.y + bed(a, a.x0 + (c + 0.5) * a.w) - a.h[c], vx: vx + (Math.random() - 0.5) * 140, vy: -50 - Math.random() * 200, r: 1 + Math.random() * 1.7 });
     }
     function sweep(x, y, vx) {
       for (var k = 0; k < L.length; k++) {
         var a = L[k]; if (y < a.y - a.max - 16 || y > a.y + 9 || x < a.x0 - 14 || x > a.x1 + 14 || hidden(k, x)) continue;
-        var c0 = Math.max(0, Math.floor((x - 13 - a.x0) / a.w)), c1 = Math.min(a.h.length - 1, Math.floor((x + 13 - a.x0) / a.w)), keep = Math.max(0, a.y - y - 9);
+        var c0 = Math.max(0, Math.floor((x - 13 - a.x0) / a.w)), c1 = Math.min(a.h.length - 1, Math.floor((x + 13 - a.x0) / a.w)), keep = Math.max(0, a.y + bed(a, x) - y - 9);
         for (var c = c0; c <= c1; c++) if (a.h[c] - keep > 0.25) { if (Math.random() < 0.6) fling(a, c, vx * 0.5); a.h[c] = keep; }
       }
     }
@@ -339,16 +343,20 @@
       fc.clearRect(0, 0, W, H);
       fc.shadowColor = shadow; fc.shadowBlur = 7; fc.shadowOffsetY = 2;
       for (k = 0; k < L.length; k++) {
-        var a = L[k], base = Math.min(H, a.y + 2), open = false, px = 0;   // la neige mord de 2 px sur le bord : aucun jour entre les deux
-        var g = fc.createLinearGradient(0, a.y - a.max, 0, base); g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#e4ecfb");
+        var a = L[k], xs = [], x, j;
+        var g = fc.createLinearGradient(0, a.y - a.max, 0, a.y + a.rad * 0.3 + 2); g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#e4ecfb");
         fc.fillStyle = g; fc.beginPath();
-        for (var x = a.x0; x <= a.x1 + 0.01; x += 3) {
-          var hh = hidden(k, x) ? 0 : height(a, x);
-          if (hh < 0.2) { if (open) { fc.lineTo(px, base); fc.closePath(); open = false; } continue; }
-          if (!open) { fc.moveTo(x, base); open = true; }
-          fc.lineTo(x, a.y - hh); px = x;
+        for (x = a.x0; ; x += 3) {   // chaque plaque visible : le dessus de la neige à l'aller, le bord qui la porte au retour
+          var end = x > a.x1 + 0.01, hh = end || hidden(k, x) ? 0 : height(a, x);
+          if (hh >= 0.2) xs.push(x, hh);
+          else if (xs.length) {
+            fc.moveTo(xs[0], Math.min(H, a.y + bed(a, xs[0]) + 2));
+            for (j = 0; j < xs.length; j += 2) fc.lineTo(xs[j], a.y + bed(a, xs[j]) - xs[j + 1]);
+            for (j = xs.length - 2; j >= 0; j -= 2) fc.lineTo(xs[j], Math.min(H, a.y + bed(a, xs[j]) + 2));   // mord de 2 px sur le bord : aucun jour
+            fc.closePath(); xs = [];
+          }
+          if (end) break;
         }
-        if (open) { fc.lineTo(px, base); fc.closePath(); }
         fc.fill();
       }
       fc.shadowColor = "transparent"; fc.fillStyle = "#fff";
