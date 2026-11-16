@@ -23,7 +23,7 @@ Ce fichier résume tout ce qui a été construit, décidé et appris. Le guide d
 | [mac/package.sh](mac/package.sh) | Lance build.sh puis crée `dist/Flocon-Mac-1.0.zip` avec `ditto`, qui garde la signature intacte (ne pas utiliser `zip`) |
 | [mac/LISEZ-MOI.txt](mac/LISEZ-MOI.txt) | Notice de l'acheteur Mac, glissée dans le zip |
 | `mac/tests/` | Outils du test GitHub Mac : `ordre.sh`, `outils.sh`, `souris.swift`, `fenetre.swift` |
-| [windows/Flocon.cs](windows/Flocon.cs) | Toute l'app Windows (C#, .NET Framework 4.8, WinForms + dessin à la main), environ 1 300 lignes |
+| [windows/Flocon.cs](windows/Flocon.cs) | Toute l'app Windows (C#, .NET Framework 4.8, WinForms + dessin à la main), environ 1 400 lignes |
 | [windows/Flocon.csproj](windows/Flocon.csproj) | Projet de compilation. On ne peut **pas** compiler sur le Mac : seulement via GitHub |
 | [windows/LISEZ-MOI.txt](windows/LISEZ-MOI.txt) | Notice de l'acheteur Windows |
 | [windows/tests/test.ps1](windows/tests/test.ps1) | Scénario de test Windows. Doit rester en **UTF-8 avec BOM**, sinon PowerShell 5 casse les accents |
