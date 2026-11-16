@@ -1920,7 +1920,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         setMode(UserDefaults.standard.object(forKey: "mode") as? Int ?? 1)
         // Tests automatiques : lancée avec --pilote, l'app obéit à des ordres envoyés de l'extérieur (voir .github/workflows)
         if CommandLine.arguments.contains("--pilote") {
-            distributed.addObserver(forName: .init("com.yessen.flocon.pilote"), object: nil, queue: .main) { [weak self] note in
+            distributed.addObserver(forName: .init("app.flocon.mac.pilote"), object: nil, queue: .main) { [weak self] note in
                 switch note.object as? String {
                 case "chasse": self?.scene.sendPlough()
                 case "off": self?.setMode(0)

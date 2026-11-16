@@ -18,7 +18,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleIdentifier</key><string>com.yessen.flocon</string>
+	<key>CFBundleIdentifier</key><string>app.flocon.mac</string>
 	<key>CFBundleName</key><string>Flocon</string>
 	<key>CFBundleIconFile</key><string>AppIcon</string>
 	<key>CFBundleExecutable</key><string>Flocon</string>

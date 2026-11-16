@@ -31,8 +31,8 @@ jobs:
       - name: Lancement normal, avec une fenêtre ouverte
         run: |
           . mac/tests/outils.sh
-          defaults write com.yessen.flocon accueilli -bool true
-          defaults write com.yessen.flocon cadence -float 1
+          defaults write app.flocon.mac accueilli -bool true
+          defaults write app.flocon.mac cadence -float 1
           swiftc -O mac/tests/fenetre.swift -o fenetre-test
           swiftc -O mac/tests/souris.swift -o souris
           ./fenetre-test &
