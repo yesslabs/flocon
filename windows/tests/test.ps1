@@ -162,7 +162,7 @@ foreach ($i in 1..40) { Bouge "Deuxieme fenetre" (560 + 140 * ($i % 2)) 300 300 
 Photo "6b-secousse"
 Start-Sleep 2
 $e = Etat "secousse"
-Verifie ([int]$e.neige_fenetres -lt $avant * 0.85) "la secousse a fait tomber la neige de la fenêtre"
+Verifie ([int]$e.neige_fenetres -lt $avant - 150) "la secousse a fait tomber la neige de la fenêtre"
 Bouge "Deuxieme fenetre" 620 300 300 250
 
 # 6c. le curseur balaie la neige du sol
