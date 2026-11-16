@@ -287,7 +287,7 @@ sealed unsafe class Scene {
     Layer back, front;
     Rectangle bounds;
     int W, H, frame, stamp;
-    float s = 1, col = 3, t, fade, evap;
+    float s = 1, col = 3, t, fade, evap, fps = 60;
     int state = 2;                 // 0 = il neige, 1 = la neige s'évapore, 2 = tout est caché
     bool bare;                     // pendant l'évaporation, plus rien ne se pose
     bool frontDirty;
@@ -364,12 +364,13 @@ sealed unsafe class Scene {
         StepLumps(dt);
         back.Present(true, new RECT());   // shortcut: tout l'écran renvoyé à chaque image ; par zones si les écrans 4K peinent
         if (frontDirty) { DrawFront(); frontDirty = false; }
-        if (frame % 20 == 0) {
+        fps += (1 / Math.Max(dt, 0.001f) - fps) * 0.05f;
+        {
             float win = 0;
             foreach (var L in ledges.Values) win += L.Total();
             status = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                "etat={0} flocons={1} rebords={2} neige_sol={3:0} neige_fenetres={4:0} fond_ok={5} ecran={6}x{7} echelle={8:0.00}",
-                state, flakes.Length, ledges.Count, ground.Total(), win, Desk.backOk ? 1 : 0, W, H, s);
+                "etat={0} flocons={1} rebords={2} neige_sol={3:0} neige_fenetres={4:0} fond_ok={5} ecran={6}x{7} echelle={8:0.00} images_par_s={9:0}",
+                state, flakes.Length, ledges.Count, ground.Total(), win, Desk.backOk ? 1 : 0, W, H, s, fps);
         }
     }
 
@@ -425,7 +426,8 @@ sealed unsafe class Scene {
 
     void AddLump(float x, float y, float hh) {
         if (hh < 0.6f || lumps.Count > 3000 || bare) return;
-        lumps.Add(new Lump { x = x, y = y - hh / 2, r = Math.Max(1.2f * s, (float)Math.Sqrt(hh * col / 3.14f)), vx = (Rand() - 0.5f) * 30 * s });
+        lumps.Add(new Lump { x = x, y = y - hh / 2, r = Math.Max(1.2f * s, (float)Math.Sqrt(hh * col / 3.14f)), vx = (Rand() - 0.5f) * 30 * s,
+            vy = -Rand() * 90 * s });   // petit élan inégal : les paquets ne tombent pas en ligne droite
     }
 
     void Spawn(ref Flake f, bool anywhere) {

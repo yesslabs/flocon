@@ -99,6 +99,7 @@ $avant = [int]$e.neige_fenetres
 Bouge "Fenetre de test" 100 250 300 350
 Start-Sleep -Milliseconds 300
 Photo "4-fenetre-retrecie"
+Start-Sleep 1
 $e = Etat "retrecie"
 Verifie ([int]$e.neige_fenetres -lt $avant) "la neige qui dépassait est tombée"
 
