@@ -38,11 +38,13 @@ JOUER AVEC LA NEIGE
 
 À SAVOIR
 - La neige tombe sur l'écran principal seulement.
+- Flocon se met en pause quand l'écran se verrouille.
 - Si vous déplacez Flocon.exe après avoir coché « Ouvrir au démarrage de Windows »,
   décochez puis recochez l'option.
 
 METTRE À JOUR
-Quittez Flocon, téléchargez la nouvelle version, remplacez l'ancien Flocon.exe.
+Les nouvelles versions vous sont envoyées par e-mail. Quittez Flocon, puis remplacez
+l'ancien Flocon.exe par le nouveau. Le numéro de version est affiché en bas du menu de Flocon.
 
 DÉSINSTALLER
 Décochez « Ouvrir au démarrage de Windows », quittez Flocon, supprimez le dossier.
