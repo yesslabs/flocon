@@ -48,3 +48,6 @@ l'ancien Flocon.exe par le nouveau. Le numéro de version est affiché en bas du
 
 DÉSINSTALLER
 Décochez « Ouvrir au démarrage de Windows », quittez Flocon, supprimez le dossier.
+
+UN PROBLÈME, UNE QUESTION ?
+Écrivez à flocon.app@gmail.com

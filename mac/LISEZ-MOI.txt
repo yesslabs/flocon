@@ -61,3 +61,8 @@ MISES À JOUR
 Les nouvelles versions vous sont envoyées par e-mail. Pour mettre à jour,
 quittez Flocon, remplacez l'ancienne app par la nouvelle dans Applications,
 puis rouvrez-la. Le numéro de version est affiché en bas du menu de Flocon.
+
+
+UN PROBLÈME, UNE QUESTION ?
+
+Écrivez à flocon.app@gmail.com
