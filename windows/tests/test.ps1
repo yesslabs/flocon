@@ -2,9 +2,11 @@
 # et prend une capture d'écran à chaque étape. Usage : powershell -File windows/tests/test.ps1 chemin\Flocon.exe
 param([string]$exe)
 $ErrorActionPreference = "Stop"
+# une erreur arrête tout de suite le script, fenêtres de test comprises (sinon elles le gardent en vie)
+trap { Write-Host $_; Write-Host $_.ScriptStackTrace; [Environment]::Exit(1) }
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 Add-Type -Namespace W -Name U -MemberDefinition @'
-[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string c, string t);
+[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(IntPtr c, string t);
 [DllImport("user32.dll")] public static extern bool MoveWindow(IntPtr h, int x, int y, int w, int hh, bool repaint);
 [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, int msg, IntPtr w, IntPtr l);
 [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
@@ -48,11 +50,11 @@ function Fenetre($titre, $x, $y, $w, $h) {
     }).AddArgument($titre).AddArgument($x).AddArgument($y).AddArgument($w).AddArgument($h)
     [void]$ps.BeginInvoke()
     Start-Sleep 4
-    $hwnd = [W.U]::FindWindow($null, $titre)
+    $hwnd = [W.U]::FindWindow([IntPtr]::Zero, $titre)
     Verifie ($hwnd -ne [IntPtr]::Zero) "la fenêtre « $titre » est ouverte"
     [W.U]::ShowWindow($hwnd, 1) | Out-Null   # au cas où la machine de test lance tout en caché
 }
-function Bouge($titre, $x, $y, $w, $h) { [W.U]::MoveWindow([W.U]::FindWindow($null, $titre), $x, $y, $w, $h, $true) | Out-Null }
+function Bouge($titre, $x, $y, $w, $h) { [W.U]::MoveWindow([W.U]::FindWindow([IntPtr]::Zero, $titre), $x, $y, $w, $h, $true) | Out-Null }
 
 # 1. tests internes et diagnostic
 $p = Start-Process $exe -ArgumentList "--selftest" -Wait -PassThru
@@ -105,18 +107,18 @@ Fenetre "Deuxieme fenetre" 620 300 300 250
 Photo "5-nouvelle-fenetre"
 $e = Etat "nouvelle"
 Verifie ([int]$e.rebords -ge 2) "la deuxième fenêtre est reconnue"
-[W.U]::PostMessage([W.U]::FindWindow($null, "Fenetre de test"), 0x10, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
+[W.U]::PostMessage([W.U]::FindWindow([IntPtr]::Zero, "Fenetre de test"), 0x10, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
 Start-Sleep 2
 Photo "6-fenetre-fermee"
 $e2 = Etat "fermee"
 Verifie ([int]$e2.rebords -lt [int]$e.rebords) "la fenêtre fermée n'a plus de neige"
 
 # 6. fenêtre réduite dans la barre des tâches, puis restaurée
-[W.U]::ShowWindow([W.U]::FindWindow($null, "Deuxieme fenetre"), 6) | Out-Null
+[W.U]::ShowWindow([W.U]::FindWindow([IntPtr]::Zero, "Deuxieme fenetre"), 6) | Out-Null
 Start-Sleep 2
 $e3 = Etat "reduite"
 Verifie ([int]$e3.rebords -lt [int]$e2.rebords) "la fenêtre réduite n'a plus de neige"
-[W.U]::ShowWindow([W.U]::FindWindow($null, "Deuxieme fenetre"), 9) | Out-Null
+[W.U]::ShowWindow([W.U]::FindWindow([IntPtr]::Zero, "Deuxieme fenetre"), 9) | Out-Null
 Start-Sleep 2
 
 # 7. verrouillage puis déverrouillage
@@ -163,3 +165,4 @@ Photo "12-relance"
 Verifie ((Etat "relance").etat -eq "0") "relancé : il neige"
 Stop-Process -Name Flocon -Force
 Write-Host "TOUT EST BON"
+[Environment]::Exit(0)
