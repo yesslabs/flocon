@@ -8,6 +8,16 @@ INSTALLER
    Cliquez sur « Informations complémentaires », puis sur « Exécuter quand même ».
    C'est normal : Flocon est une petite app indépendante, sans certificat payant.
 
+SI WINDOWS BLOQUE FLOCON SANS PROPOSER « EXÉCUTER QUAND MÊME »
+Le message commence par « Le Contrôle intelligent des applications a bloqué… ».
+C'est une protection de Windows 11 qui refuse toutes les apps sans certificat payant.
+Pour utiliser Flocon, il faut la désactiver :
+1. Ouvrez « Sécurité Windows », puis « Contrôle des applications et du navigateur ».
+2. Cliquez sur « Paramètres du Contrôle intelligent des applications ».
+3. Choisissez « Désactivé ».
+Attention : Windows ne permet pas de la réactiver ensuite sans réinitialiser le PC.
+Votre PC reste protégé par l'antivirus de Windows.
+
 UTILISER
 Flocon n'a pas de fenêtre : il vit dans une icône près de l'horloge, en bas à droite.
 Si vous ne la voyez pas, cliquez sur la petite flèche ^ à côté de l'horloge

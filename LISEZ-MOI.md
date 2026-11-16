@@ -26,3 +26,7 @@ Les captures d'écran sont dans « Artifacts », en bas de la page du test.
 ## Différences entre Windows et Mac
 
 La version Windows a les mêmes fonctions que la version Mac. Deux limites : la neige tombe sur l'écran principal seulement, et elle ne glisse pas sur une fenêtre qu'on déplace doucement (elle tombe quand on la secoue).
+
+## Blocage sur certains PC Windows 11
+
+Flocon.exe n'est pas signé. Sur les PC où le « Contrôle intelligent des applications » est activé (installations récentes de Windows 11), Windows le bloque sans bouton pour passer outre. L'acheteur doit désactiver cette protection (étapes dans `windows/LISEZ-MOI.txt`), ce qui est définitif. Pour supprimer ce blocage : signer l'app avec un certificat reconnu, ou la publier sur le Microsoft Store.
