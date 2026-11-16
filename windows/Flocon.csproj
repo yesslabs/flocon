@@ -16,5 +16,6 @@
   <ItemGroup>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Drawing" />
+    <EmbeddedResource Include="Flocon.ico" LogicalName="Flocon.ico" />
   </ItemGroup>
 </Project>

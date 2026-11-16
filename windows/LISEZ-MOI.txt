@@ -15,8 +15,16 @@ Si vous ne la voyez pas, cliquez sur la petite flèche ^ à côté de l'horloge
 Cliquez sur l'icône pour :
 - activer ou désactiver la neige ;
 - régler la cadence de la neige ;
+- envoyer le chasse-neige, qui dégage le bas de l'écran ;
 - ouvrir Flocon au démarrage de Windows ;
 - quitter Flocon.
+
+JOUER AVEC LA NEIGE
+- Passez le curseur dans la neige : il la balaie.
+- Secouez une fenêtre : sa neige tombe. Rétrécissez-la : ce qui dépasse bascule dans le vide.
+- Cliquez dans la neige et gardez le bouton enfoncé : une boule naît. Faites-la rouler
+  dans la neige pour la grossir, puis lâchez-la ou lancez-la. Trop petite, elle fond.
+- Empilez trois boules : elles deviennent un bonhomme de neige.
 
 À SAVOIR
 - La neige tombe sur l'écran principal seulement.

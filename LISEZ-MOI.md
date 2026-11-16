@@ -23,6 +23,6 @@ Les captures d'écran sont dans « Artifacts », en bas de la page du test.
 2. Lancer « Test Flocon Windows ».
 3. Télécharger l'artifact « zip-a-vendre » et mettre son `Flocon-Windows-1.0.zip` dans `dist/`.
 
-## Ce que la version Windows n'a pas encore
+## Différences entre Windows et Mac
 
-Boules et bonhomme de neige, chasse-neige, neige balayée par le curseur, fenêtre de présentation illustrée.
+La version Windows a les mêmes fonctions que la version Mac. Deux limites : la neige tombe sur l'écran principal seulement, et elle ne glisse pas sur une fenêtre qu'on déplace doucement (elle tombe quand on la secoue).

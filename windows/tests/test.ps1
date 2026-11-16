@@ -11,6 +11,9 @@ Add-Type -Namespace W -Name U -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, int msg, IntPtr w, IntPtr l);
 [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
 [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
+[DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+[DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint dx, uint dy, uint data, UIntPtr extra);
+[DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
 '@
 [W.U]::SetProcessDPIAware() | Out-Null
 New-Item -ItemType Directory -Force shots | Out-Null
@@ -54,6 +57,23 @@ function Fenetre($titre, $x, $y, $w, $h) {
     Verifie ($hwnd -ne [IntPtr]::Zero) "la fenêtre « $titre » est ouverte"
     [W.U]::ShowWindow($hwnd, 1) | Out-Null   # au cas où la machine de test lance tout en caché
 }
+# La vraie souris : déplacée pas à pas, bouton gauche enfoncé (2) ou relâché (4)
+function Souris($x, $y) { [W.U]::SetCursorPos($x, $y) | Out-Null; Start-Sleep -Milliseconds 25 }
+function Glisse($x0, $y0, $x1, $y1) {
+    $n = [int][math]::Max(1, ([math]::Abs($x1 - $x0) + [math]::Abs($y1 - $y0)) / 8)
+    foreach ($i in 1..$n) { Souris ([int]($x0 + ($x1 - $x0) * $i / $n)) ([int]($y0 + ($y1 - $y0) * $i / $n)) }
+}
+function Bouton($quoi) { [W.U]::mouse_event($quoi, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 300 }
+# Clique dans la neige du sol en $depart, roule la boule jusqu'à $fin, la porte au point de lâcher et la laisse tomber
+function Boule($depart, $fin, $lacheX, $lacheY) {
+    Souris $depart ($sol - 4); Start-Sleep -Milliseconds 600
+    Bouton 2
+    Glisse $depart ($sol - 4) $fin ($sol - 4)
+    Glisse $fin ($sol - 4) $lacheX $lacheY
+    Start-Sleep -Milliseconds 600
+    Bouton 4
+    Start-Sleep 2
+}
 function Bouge($titre, $x, $y, $w, $h) { [W.U]::MoveWindow([W.U]::FindWindow([IntPtr]::Zero, $titre), $x, $y, $w, $h, $true) | Out-Null }
 
 # 1. tests internes et diagnostic
@@ -67,6 +87,12 @@ Remove-Item HKCU:\Software\Flocon -Recurse -ErrorAction SilentlyContinue
 Start-Process $exe
 Start-Sleep 8
 Photo "1-accueil"
+$w = [W.U]::FindWindow([IntPtr]::Zero, "Bienvenue dans Flocon")
+Verifie ($w -ne [IntPtr]::Zero) "la fenêtre de présentation est ouverte"
+[W.U]::SetForegroundWindow($w) | Out-Null
+[Windows.Forms.SendKeys]::SendWait("{ENTER}")
+Start-Sleep 2
+Photo "1b-accueil-suite"
 Stop-Process -Name Flocon -Force
 Start-Sleep 2
 
@@ -121,6 +147,61 @@ $e3 = Etat "reduite"
 Verifie ([int]$e3.rebords -lt [int]$e2.rebords) "la fenêtre réduite n'a plus de neige"
 [W.U]::ShowWindow([W.U]::FindWindow([IntPtr]::Zero, "Deuxieme fenetre"), 9) | Out-Null
 Start-Sleep 2
+
+# 6b. fenêtre secouée : sa neige est projetée
+Ordre "neige"
+$e = Etat "avant-secousse"
+$sol = [int]$e.sol
+$avant = [int]$e.neige_fenetres
+Verifie ($avant -gt 0) "la fenêtre a de la neige avant la secousse"
+foreach ($i in 1..40) { Bouge "Deuxieme fenetre" (560 + 140 * ($i % 2)) 300 300 250; Start-Sleep -Milliseconds 60 }
+Photo "6b-secousse"
+Start-Sleep 2
+$e = Etat "secousse"
+Verifie ([int]$e.neige_fenetres -lt $avant * 0.85) "la secousse a fait tomber la neige de la fenêtre"
+Bouge "Deuxieme fenetre" 620 300 300 250
+
+# 6c. le curseur balaie la neige du sol
+Ordre "neige"
+Souris 100 ($sol - 60)
+Glisse 100 ($sol - 60) 100 ($sol - 3)
+Glisse 100 ($sol - 3) 900 ($sol - 3)
+Photo "6c-balayage"
+$e = Etat "balayage"
+Verifie ([int]$e.creuse -gt 500) "le curseur a creusé la neige ($($e.creuse))"
+Souris 500 300
+
+# 6d. trois boules roulées à la souris puis empilées : un bonhomme
+Ordre "neige"
+Boule 150 450 300 ($sol - 60)
+Photo "6d-boule-1"
+$e = Etat "boule-1"
+Verifie ($e.boules -eq "1") "une boule roulée dans la neige tient au sol"
+Boule 600 800 300 ($sol - 110)
+Photo "6e-boule-2"
+Verifie ((Etat "boule-2").boules -eq "2") "la deuxième boule tient sur la première"
+Boule 830 1000 300 ($sol - 170)
+Photo "6f-bonhomme"
+$e = Etat "bonhomme"
+Verifie ($e.bonhommes -eq "1" -and $e.boules -eq "0") "trois boules empilées deviennent un bonhomme"
+# un simple clic dans la neige, sans rouler : la boule fond
+Souris 520 ($sol - 4); Start-Sleep -Milliseconds 600; Bouton 2; Bouton 4
+Verifie ((Etat "clic").boules -eq "0") "une boule pas roulée fond"
+Souris 500 300
+
+# 6e. chasse-neige : il dégage le sol et renverse le bonhomme
+Ordre "neige"
+$avant = [int](Etat "avant-chasse").neige_sol
+Ordre "chasse"
+Start-Sleep 3
+Photo "6g-chasse-neige"
+Verifie ((Etat "chasse").chasse -eq "1") "le chasse-neige est parti"
+Start-Sleep 12
+Photo "6h-apres-chasse"
+$e = Etat "apres-chasse"
+Verifie ($e.chasse -eq "0") "le chasse-neige est reparti"
+Verifie ($e.bonhommes -eq "0") "le chasse-neige a renversé le bonhomme"
+Verifie ([int]$e.neige_sol -lt $avant * 0.5) "le chasse-neige a dégagé le sol"
 
 # 7. verrouillage puis déverrouillage
 Ordre "verrou"
