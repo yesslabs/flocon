@@ -1,5 +1,5 @@
 FLOCON — il neige sur votre Mac
-Version 1.0 · macOS 13 ou plus récent · Mac à puce Apple ou Intel
+Version 1.0 · macOS 15 ou plus récent · Mac à puce Apple ou Intel
 
 
 INSTALLATION (2 minutes)
