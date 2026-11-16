@@ -1,5 +1,5 @@
-# Outils communs aux étapes du test (à charger avec : . ci/outils.sh)
-ordre() { ci/ordre.sh "$@"; }
+# Outils communs aux étapes du test (à charger avec : . mac/tests/outils.sh)
+ordre() { mac/tests/ordre.sh "$@"; }
 pilote() { ordre com.yessen.flocon.pilote "$1"; }
 vivant() { pgrep -x Flocon >/dev/null || { echo "::error::Flocon s'est arrêté ($1)"; exit 1; }; }
 photo() { screencapture -x "shots/$1.png"; vivant "$1"; }

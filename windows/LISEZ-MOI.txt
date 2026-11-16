@@ -1,0 +1,30 @@
+FLOCON pour Windows — il neige sur votre bureau
+Version 1.0 — Windows 10 et 11
+
+INSTALLER
+1. Dézippez le dossier où vous voulez (par exemple dans Documents).
+2. Double-cliquez sur Flocon.exe.
+3. La première fois, Windows affiche « Windows a protégé votre ordinateur ».
+   Cliquez sur « Informations complémentaires », puis sur « Exécuter quand même ».
+   C'est normal : Flocon est une petite app indépendante, sans certificat payant.
+
+UTILISER
+Flocon n'a pas de fenêtre : il vit dans une icône près de l'horloge, en bas à droite.
+Si vous ne la voyez pas, cliquez sur la petite flèche ^ à côté de l'horloge
+(vous pouvez ensuite faire glisser l'icône à côté de l'horloge pour la garder visible).
+Cliquez sur l'icône pour :
+- activer ou désactiver la neige ;
+- régler la cadence de la neige ;
+- ouvrir Flocon au démarrage de Windows ;
+- quitter Flocon.
+
+À SAVOIR
+- La neige tombe sur l'écran principal seulement.
+- Si vous déplacez Flocon.exe après avoir coché « Ouvrir au démarrage de Windows »,
+  décochez puis recochez l'option.
+
+METTRE À JOUR
+Quittez Flocon, téléchargez la nouvelle version, remplacez l'ancien Flocon.exe.
+
+DÉSINSTALLER
+Décochez « Ouvrir au démarrage de Windows », quittez Flocon, supprimez le dossier.

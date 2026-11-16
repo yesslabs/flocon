@@ -1,4 +1,4 @@
-// Fenêtre de test qui obéit à des ordres (ci/ordre.sh flocon.test.fenetre "…"), sans aucune autorisation à demander :
+// Fenêtre de test qui obéit à des ordres (mac/tests/ordre.sh flocon.test.fenetre "…"), sans aucune autorisation à demander :
 //   "x haut largeur hauteur" la déplace (haut compté depuis le haut de l'écran), "nouvelle" en ouvre une 2e, "ferme" ferme la 1re.
 import AppKit
 let app = NSApplication.shared

@@ -1,0 +1,20 @@
+<!-- Compile Flocon.exe pour Windows 10 et 11 : un seul petit fichier, sans rien à installer (.NET Framework 4.8 est déjà dans Windows). -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>Flocon</AssemblyName>
+    <Product>Flocon</Product>
+    <Version>1.0</Version>
+    <LangVersion>9.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DebugType>none</DebugType>
+    <ApplicationIcon>Flocon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+</Project>

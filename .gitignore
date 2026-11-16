@@ -1,3 +1,5 @@
-Flocon.app/
+mac/Flocon.app/
+windows/bin/
+windows/obj/
 .DS_Store
 captures-test/

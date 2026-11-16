@@ -1,5 +1,5 @@
 # Lance le zip vendu (dist/) sur les Mac de GitHub, Intel et puce Apple, et rapporte des captures d'écran.
-name: Test Flocon
+name: Test Flocon Mac
 on: workflow_dispatch
 jobs:
   test:
@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Dézipper comme un acheteur
         run: |
-          ditto -x -k dist/Flocon-*.zip out
+          ditto -x -k dist/Flocon-Mac-*.zip out
           mv out/Flocon*/Flocon.app /Applications/
           codesign --verify --deep --strict /Applications/Flocon.app
       - name: Test interne et diagnostic
@@ -30,11 +30,11 @@ jobs:
           pkill -x Flocon
       - name: Lancement normal, avec une fenêtre ouverte
         run: |
-          . ci/outils.sh
+          . mac/tests/outils.sh
           defaults write com.yessen.flocon accueilli -bool true
           defaults write com.yessen.flocon cadence -float 1
-          swiftc -O ci/fenetre.swift -o fenetre-test
-          swiftc -O ci/souris.swift -o souris
+          swiftc -O mac/tests/fenetre.swift -o fenetre-test
+          swiftc -O mac/tests/souris.swift -o souris
           ./fenetre-test &
           sleep 3
           open /Applications/Flocon.app --args --pilote
@@ -42,14 +42,14 @@ jobs:
           photo 2-neige-50s
       - name: Boule de neige roulée à la souris
         run: |
-          . ci/outils.sh
+          . mac/tests/outils.sh
           # dans la neige posée sur la fenêtre de test (haut à 150 pt)
           essai ./souris 230 670 147
           sleep 1
           photo 7-boule
       - name: Fenêtre déplacée, rétrécie, ouverte, fermée
         run: |
-          . ci/outils.sh
+          . mac/tests/outils.sh
           fenetre '100 250 500 350'
           sleep 2
           photo 3-fenetre-deplacee
@@ -64,7 +64,7 @@ jobs:
           photo 6-fenetre-fermee
       - name: Chasse-neige
         run: |
-          . ci/outils.sh
+          . mac/tests/outils.sh
           pilote chasse
           sleep 6
           photo 8-chasse-neige-en-route
@@ -72,7 +72,7 @@ jobs:
           photo 9-chasse-neige-passe
       - name: Verrouillage puis déverrouillage
         run: |
-          . ci/outils.sh
+          . mac/tests/outils.sh
           ordre com.apple.screenIsLocked
           sleep 2
           photo 10-verrouille
@@ -81,7 +81,7 @@ jobs:
           photo 11-deverrouille
       - name: Désactivation puis réactivation
         run: |
-          . ci/outils.sh
+          . mac/tests/outils.sh
           pilote off
           sleep 2
           photo 12-desactive
@@ -90,7 +90,7 @@ jobs:
           photo 13-reactive
       - name: Menu de la barre des menus
         run: |
-          . ci/outils.sh
+          . mac/tests/outils.sh
           # le clic ne rend la main qu'à la fermeture du menu : on le lance à part
           osascript -e 'tell application "System Events" to tell process "Flocon" to click menu bar item 1 of menu bar 1' &
           sleep 3
@@ -100,7 +100,7 @@ jobs:
           kill %1 2>/dev/null || true
       - name: Maltraitance (ordres en rafale)
         run: |
-          . ci/outils.sh
+          . mac/tests/outils.sh
           for i in 1 2 3 4 5 6 7 8; do
             pilote off; pilote on; pilote chasse
             ordre com.apple.screenIsLocked; ordre com.apple.screenIsUnlocked
@@ -110,7 +110,7 @@ jobs:
           photo 15-apres-rafale
       - name: Quitter puis relancer
         run: |
-          . ci/outils.sh
+          . mac/tests/outils.sh
           pkill -x Flocon
           sleep 2
           open /Applications/Flocon.app

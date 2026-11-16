@@ -1,5 +1,5 @@
 // Fait glisser la souris de (x0,y) à (x1,y), en points depuis le coin haut gauche, comme une main qui roule une boule.
-// Un y négatif se compte depuis le bas de l'écran. Usage : swift ci/souris.swift x0 x1 y
+// Un y négatif se compte depuis le bas de l'écran. Usage : swift mac/tests/souris.swift x0 x1 y
 import CoreGraphics
 import Foundation
 var a = CommandLine.arguments.dropFirst().compactMap { Double($0) }

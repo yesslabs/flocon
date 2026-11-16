@@ -1,0 +1,38 @@
+# Compile Flocon pour Windows, prépare le zip à vendre, puis joue le scénario de test avec captures d'écran.
+name: Test Flocon Windows
+on: workflow_dispatch
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compiler
+        run: dotnet build windows/Flocon.csproj -c Release -o out
+      - name: Préparer le zip à vendre
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory "zip/Flocon 1.0" | Out-Null
+          Copy-Item out/Flocon.exe, windows/LISEZ-MOI.txt "zip/Flocon 1.0/"
+          Compress-Archive "zip/Flocon 1.0" Flocon-Windows-1.0.zip
+      - uses: actions/upload-artifact@v4
+        if: matrix.os == 'windows-2025'
+        with:
+          name: zip-a-vendre
+          path: Flocon-Windows-1.0.zip
+      - name: Scénario de test
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File windows/tests/test.ps1 "$PWD\out\Flocon.exe"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flocon-${{ matrix.os }}
+          path: |
+            shots
+            diag.txt
+            etats.txt
+            cpu.txt
