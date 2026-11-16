@@ -12,6 +12,7 @@ Add-Type -Namespace W -Name U -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
 [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
 [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+[DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int w, int hh, int flags);
 [DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint dx, uint dy, uint data, UIntPtr extra);
 [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
 '@
@@ -56,6 +57,9 @@ function Fenetre($titre, $x, $y, $w, $h) {
     $hwnd = [W.U]::FindWindow([IntPtr]::Zero, $titre)
     Verifie ($hwnd -ne [IntPtr]::Zero) "la fenêtre « $titre » est ouverte"
     [W.U]::ShowWindow($hwnd, 1) | Out-Null   # au cas où la machine de test lance tout en caché
+    # devant les autres fenêtres (la console de la machine de test), sans lui donner la main
+    [W.U]::SetWindowPos($hwnd, [IntPtr](-1), 0, 0, 0, 0, 0x13) | Out-Null
+    [W.U]::SetWindowPos($hwnd, [IntPtr](-2), 0, 0, 0, 0, 0x13) | Out-Null
 }
 # La vraie souris : déplacée pas à pas, bouton gauche enfoncé (2) ou relâché (4)
 function Souris($x, $y) { [W.U]::SetCursorPos($x, $y) | Out-Null; Start-Sleep -Milliseconds 25 }
