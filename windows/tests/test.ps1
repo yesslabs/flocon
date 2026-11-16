@@ -1,4 +1,4 @@
-# Scénario de test joué sur les machines Windows de GitHub : lance Flocon.exe, le pilote, vérifie son état
+﻿# Scénario de test joué sur les machines Windows de GitHub : lance Flocon.exe, le pilote, vérifie son état
 # et prend une capture d'écran à chaque étape. Usage : powershell -File windows/tests/test.ps1 chemin\Flocon.exe
 param([string]$exe)
 $ErrorActionPreference = "Stop"
@@ -37,12 +37,20 @@ function Etat($nom) {
     return $d
 }
 function Verifie($ok, $quoi) { if (-not $ok) { throw "ÉCHEC : $quoi" } else { Write-Host "ok : $quoi" } }
-# Fenêtre de test ordinaire, dans un autre processus, que le test déplace ensuite de l'extérieur
+# Fenêtre de test ordinaire, tenue par un autre fil de ce script, que le test déplace ensuite de l'extérieur
 function Fenetre($titre, $x, $y, $w, $h) {
-    $code = "Add-Type -AssemblyName System.Windows.Forms; `$f = New-Object Windows.Forms.Form; `$f.Text = '$titre'; `$f.StartPosition = 'Manual'; `$f.SetBounds($x, $y, $w, $h); [Windows.Forms.Application]::Run(`$f)"
-    Start-Process powershell -ArgumentList "-NoProfile", "-WindowStyle", "Hidden", "-Command", $code
+    $ps = [powershell]::Create()
+    [void]$ps.AddScript({ param($t, $x, $y, $w, $h)
+        Add-Type -AssemblyName System.Windows.Forms
+        $f = New-Object Windows.Forms.Form
+        $f.Text = $t; $f.StartPosition = 'Manual'; $f.SetBounds($x, $y, $w, $h)
+        [Windows.Forms.Application]::Run($f)
+    }).AddArgument($titre).AddArgument($x).AddArgument($y).AddArgument($w).AddArgument($h)
+    [void]$ps.BeginInvoke()
     Start-Sleep 4
-    Verifie ([W.U]::FindWindow($null, $titre) -ne [IntPtr]::Zero) "la fenêtre « $titre » est ouverte"
+    $hwnd = [W.U]::FindWindow($null, $titre)
+    Verifie ($hwnd -ne [IntPtr]::Zero) "la fenêtre « $titre » est ouverte"
+    [W.U]::ShowWindow($hwnd, 1) | Out-Null   # au cas où la machine de test lance tout en caché
 }
 function Bouge($titre, $x, $y, $w, $h) { [W.U]::MoveWindow([W.U]::FindWindow($null, $titre), $x, $y, $w, $h, $true) | Out-Null }
 

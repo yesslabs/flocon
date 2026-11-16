@@ -297,7 +297,6 @@ sealed unsafe class Scene {
     readonly List<Ledge> all = new List<Ledge>();   // les bords de fenêtres, puis le sol
     readonly List<IntPtr> gone = new List<IntPtr>();
     Ledge ground;
-    RECT lastFront;
     readonly Random rnd = new Random();
     public volatile string status = "etat=2";
 
@@ -341,7 +340,6 @@ sealed unsafe class Scene {
         ground = new Ledge(col, 24 * s);
         ground.Resize(0, W, null);
         ground.y = H;
-        lastFront = new RECT();
     }
     void Hide() {
         ledges.Clear(); lumps.Clear(); ground.Shed(null); ground.Resize(0, W, null);
