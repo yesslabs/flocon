@@ -260,11 +260,21 @@ sealed unsafe class Layer : Form {
             return p;
         }
     }
-    /// Capte les clics (dans la neige, sur une boule) ou les laisse tous traverser.
-    public void SetSolid(bool on) {
-        if (on == Solid) return;
+    /// Capte les clics (dans la neige, sur une boule) ou les laisse tous traverser. Vrai si ça change.
+    public bool SetSolid(bool on) {
+        if (on == Solid) return false;
         Solid = on;
         Native.SetWindowLong(Handle, -20, 0x80000 | 0x80 | 0x08000000 | (top ? 8 : 0) | (on ? 0 : 0x20));
+        return true;
+    }
+    /// Voile invisible (opacité 1/255) autour du curseur : Windows laisse passer les clics là où le calque est
+    /// tout à fait transparent, or le curseur vient souvent de creuser la neige sous sa pointe.
+    public void Veil(int cx, int cy, int r) {
+        for (int y = Math.Max(0, cy - r); y < Math.Min(H, cy + r + 1); y++) {
+            uint* p = px + (long)y * W + Math.Max(0, cx - r);
+            for (int x = Math.Max(0, cx - r); x < Math.Min(W, cx + r + 1); x++, p++) if (*p == 0) *p = 0x01000000u;
+        }
+        Touch(cx - r, cy - r, cx + r + 1, cy + r + 1);
     }
     protected override void WndProc(ref Message m) {
         if (m.Msg == 0x21) { m.Result = (IntPtr)3; return; }   // un clic dans la neige ne prend jamais la main à l'app en cours
@@ -497,6 +507,7 @@ sealed unsafe class Scene {
     Item dragging;                 // boule ou bonhomme tenu par la souris
     readonly List<Trail> trail = new List<Trail>();   // positions récentes de l'objet tenu : elles donnent l'élan du lancer
     float lastDragX, curX, curY, carved;
+    int veilX, veilY;
     bool hasCursor, upSeen;
     bool plough; float ploughX, collected, pile;
     uint[] ploughPx; int ploughW, ploughH;
@@ -981,7 +992,8 @@ sealed unsafe class Scene {
         if (dragging == null && pressed) return;
         bool want = dragging != null || SnowAt(mx, my, 3 * s) != null;
         for (int i = 0; i < items.Count && !want; i++) want = items[i].Hit(mx, my, 3 * s);
-        front.SetSolid(want);
+        if (front.SetSolid(want) || (want && ((int)mx != veilX || (int)my != veilY))) frontDirty = true;
+        veilX = (int)mx; veilY = (int)my;
     }
 
     /// La boule ramasse la neige du bord sur la distance parcourue d, jusqu'à la taille limite.
@@ -1126,6 +1138,7 @@ sealed unsafe class Scene {
             else front.Ball(it.x, it.y, it.r, s);
             front.Touch((int)(it.x - it.HalfW - 3), (int)(it.y - it.HalfH - 3), (int)(it.x + it.HalfW + 4), (int)(it.y + it.HalfH + 4));
         }
+        if (front.Solid) front.Veil(veilX, veilY, (int)(6 * s));
         front.Present(false, before);
     }
 }
